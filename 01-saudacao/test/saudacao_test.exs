@@ -9,5 +9,12 @@ defmodule SaudacaoTest do
 
     test "retorna corretamente com nomes diferentes" do
       assert Saudacao.ola("Leitor") == "Olá, Leitor!"
+    end
+
+    test "emite erro quando o argumento não é uma string" do
+      assert_raise FunctionClauseError, fn ->
+        Saudacao.ola(123)
+      end
+    end
   end
 end
