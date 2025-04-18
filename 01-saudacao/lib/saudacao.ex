@@ -1,11 +1,11 @@
 defmodule Saudacao do
   @moduledoc """
   Documentação para o módulo `Saudacao`
-  - Módulo responsável por gerar saudações personalizadas..
+  - Módulo responsável por gerar saudações personalizadas
   """
 
   @doc """
-  Retorna uma saudação com o nome informado.
+  Retorna uma saudação com o nome informado
 
   ## Exemplos
 
