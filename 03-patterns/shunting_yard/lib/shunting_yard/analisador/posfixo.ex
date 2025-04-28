@@ -10,22 +10,31 @@ defmodule ShuntingYard.Analisador.Posfixo do
   # Verifica se é operador
   defp op?(token), do: token in ["+", "-", "*", "/", "%", "^"]
 
-  # Monta a AST para número
-  defp monta_ast({:num, num}), do: {:ok, {:num, num}}
+  # Monta para número
+  defp monta_ast({:num, num}, ast) do
+    {:ok, [{:num, num} | ast]}
+  end
 
-  # Monta a AST para operador
-  defp monta_ast({:op, op, esq, dir}), do: {:ok, {:op, op, esq, dir}}
+  # Monta para operador
+  defp monta_ast({:op, op}, [dir, esq | resto]) do
+    {:ok, [{:op, op, esq, dir} | resto]}
+  end
+
+  # Erro se não tiver operandos suficientes
+  defp monta_ast({:op, _op}, _ast) do
+    {:error, :faltam_operandos}
+  end
 
   # Valida a árvore final
-  defp valida_ast({:ok, [ast]}), do: {:ok, ast}
-  defp valida_ast({:ok, _}), do: {:error, :ast_invalido}
-  defp valida_ast({:error, motivo}), do: {:error, motivo}
+  defp valida_ast([arvore]), do: {:ok, arvore}
+  defp valida_ast(_), do: {:error, :ast_invalido}
 
   # Função pública principal
   def parse(tokens) do
-    tokens
-    |> parse([])
-    |> valida_ast()
+    case parse(tokens, []) do
+      {:ok, ast} -> valida_ast(ast)
+      {:error, motivo} -> {:error, motivo}
+    end
   end
 
   # Parse principal pós-fixo
@@ -34,23 +43,16 @@ defmodule ShuntingYard.Analisador.Posfixo do
   defp parse([token | resto], pilha) do
     cond do
       num?(token) ->
-        case monta_ast({:num, token}) do
-          {:ok, num} ->
-            parse(resto, [num | pilha])
+        case monta_ast({:num, token}, pilha) do
+          {:ok, nova_pilha} ->
+            parse(resto, nova_pilha)
             # {:error, motivo} -> {:error, motivo}
         end
 
       op?(token) ->
-        case pilha do
-          [dir, esq | resto_pilha] ->
-            case monta_ast({:op, token, esq, dir}) do
-              {:ok, op} ->
-                parse(resto, [op | resto_pilha])
-                # {:error, motivo} -> {:error, motivo}
-            end
-
-          _ ->
-            {:error, :faltam_operandos}
+        case monta_ast({:op, token}, pilha) do
+          {:ok, nova_pilha} -> parse(resto, nova_pilha)
+          {:error, motivo} -> {:error, motivo}
         end
 
       true ->
