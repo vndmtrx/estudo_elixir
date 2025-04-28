@@ -30,6 +30,7 @@ defmodule ShuntingYard.MixProject do
   defp aliases do
     [
       trace: ["test --trace --seed 0"],
+      cover: ["test --cover"],
       check: [
         "format --check-formatted",
         "compile --warnings-as-errors",
@@ -42,7 +43,8 @@ defmodule ShuntingYard.MixProject do
     [
       preferred_envs: [
         trace: :test,
-        check: :test
+        cover: :test,
+        check: :test,
       ]
     ]
   end
